@@ -1,0 +1,49 @@
+{
+    "StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/SampleStack/1a2345b6-0000-00a0-a123-00abc0abc000",
+    "Status": "CREATE_COMPLETE",
+    "ChangeSetName": "SampleChangeSet-direct",
+    "Parameters": [
+        {
+            "ParameterValue": "testing",
+            "ParameterKey": "Purpose"
+        },
+        {
+            "ParameterValue": "MyKeyName",
+            "ParameterKey": "KeyPairName"
+        },
+        {
+            "ParameterValue": "t2.micro",
+            "ParameterKey": "InstanceType"
+        }
+    ],
+    "Changes": [
+        {
+            "ResourceChange": {
+                "ResourceType": "AWS::EC2::Instance",
+                "PhysicalResourceId": "i-1abc23d4",
+                "Details": [
+                    {
+                        "ChangeSource": "DirectModification",
+                        "Evaluation": "Static",
+                        "Target": {
+                            "Attribute": "Tags",
+                            "RequiresRecreation": "Never"
+                        }
+                    }
+                ],
+                "Action": "Modify",
+                "Scope": [
+                    "Tags"
+                ],
+                "LogicalResourceId": "MyEC2Instance",
+                "Replacement": "False"
+            },
+            "Type": "Resource"
+        }
+    ],
+    "CreationTime": "2020-11-18T23:35:25.813Z",
+    "Capabilities": [],
+    "StackName": "SampleStack",
+    "NotificationARNs": [],
+    "ChangeSetId": "arn:aws:cloudformation:us-east-1:123456789012:changeSet/SampleChangeSet-direct/1a2345b6-0000-00a0-a123-00abc0abc000"
+}

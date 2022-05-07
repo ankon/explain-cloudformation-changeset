@@ -1,0 +1,97 @@
+{
+    "StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/SampleStack/1a2345b6-0000-00a0-a123-00abc0abc000",
+    "Status": "CREATE_COMPLETE",
+    "ChangeSetName": "SampleChangeSet-multiple",
+    "Parameters": [
+        {
+            "ParameterValue": "production",
+            "ParameterKey": "Purpose"
+        },
+        {
+            "ParameterValue": "MyNewKeyName",
+            "ParameterKey": "KeyPairName"
+        },
+        {
+            "ParameterValue": "t2.small",
+            "ParameterKey": "InstanceType"
+        }
+    ],
+    "Changes": [
+        {
+            "ResourceChange": {
+                "ResourceType": "AWS::EC2::Instance",
+                "PhysicalResourceId": "i-7bef86f8",
+                "Details": [
+                    {
+                        "ChangeSource": "DirectModification",
+                        "Evaluation": "Dynamic",
+                        "Target": {
+                            "Attribute": "Properties",
+                            "Name": "KeyName",
+                            "RequiresRecreation": "Always"
+                        }
+                    },
+                    {
+                        "ChangeSource": "DirectModification",
+                        "Evaluation": "Dynamic",
+                        "Target": {
+                            "Attribute": "Properties",
+                            "Name": "InstanceType",
+                            "RequiresRecreation": "Conditionally"
+                        }
+                    },
+                    {
+                        "ChangeSource": "DirectModification",
+                        "Evaluation": "Dynamic",
+                        "Target": {
+                            "Attribute": "Tags",
+                            "RequiresRecreation": "Never"
+                        }
+                    },
+                    {
+                        "CausingEntity": "KeyPairName",
+                        "ChangeSource": "ParameterReference",
+                        "Evaluation": "Static",
+                        "Target": {
+                            "Attribute": "Properties",
+                            "Name": "KeyName",
+                            "RequiresRecreation": "Always"
+                        }
+                    },
+                    {
+                        "CausingEntity": "InstanceType",
+                        "ChangeSource": "ParameterReference",
+                        "Evaluation": "Static",
+                        "Target": {
+                            "Attribute": "Properties",
+                            "Name": "InstanceType",
+                            "RequiresRecreation": "Conditionally"
+                        }
+                    },
+                    {
+                        "CausingEntity": "Purpose",
+                        "ChangeSource": "ParameterReference",
+                        "Evaluation": "Static",
+                        "Target": {
+                            "Attribute": "Tags",
+                            "RequiresRecreation": "Never"
+                        }
+                    }
+                ],
+                "Action": "Modify",
+                "Scope": [
+                    "Tags",
+                    "Properties"
+                ],
+                "LogicalResourceId": "MyEC2Instance",
+                "Replacement": "True"
+            },
+            "Type": "Resource"
+        }
+    ],
+    "CreationTime": "2020-11-18T00:39:35.974Z",
+    "Capabilities": [],
+    "StackName": "SampleStack",
+    "NotificationARNs": [],
+    "ChangeSetId": "arn:aws:cloudformation:us-east-1:123456789012:changeSet/SampleChangeSet-multiple/1a2345b6-0000-00a0-a123-00abc0abc000"
+}

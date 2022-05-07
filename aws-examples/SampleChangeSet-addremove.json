@@ -1,0 +1,57 @@
+{
+    "StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/SampleStack/1a2345b6-0000-00a0-a123-00abc0abc000",
+    "Status": "CREATE_COMPLETE",
+    "ChangeSetName": "SampleChangeSet-addremove",
+    "Parameters": [
+        {
+            "ParameterValue": "testing",
+            "ParameterKey": "Purpose"
+        },
+        {
+            "ParameterValue": "MyKeyName",
+            "ParameterKey": "KeyPairName"
+        },
+        {
+            "ParameterValue": "t2.micro",
+            "ParameterKey": "InstanceType"
+        }
+    ],
+    "Changes": [
+        {
+            "ResourceChange": {
+                "Action": "Add",
+                "ResourceType": "AWS::AutoScaling::AutoScalingGroup",
+                "Scope": [],
+                "Details": [],
+                "LogicalResourceId": "AutoScalingGroup"
+            },
+            "Type": "Resource"
+        },
+        {
+            "ResourceChange": {
+                "Action": "Add",
+                "ResourceType": "AWS::AutoScaling::LaunchConfiguration",
+                "Scope": [],
+                "Details": [],
+                "LogicalResourceId": "LaunchConfig"
+            },
+            "Type": "Resource"
+        },
+        {
+            "ResourceChange": {
+                "ResourceType": "AWS::EC2::Instance",
+                "PhysicalResourceId": "i-1abc23d4",
+                "Details": [],
+                "Action": "Remove",
+                "Scope": [],
+                "LogicalResourceId": "MyEC2Instance"
+            },
+            "Type": "Resource"
+        }
+    ],
+    "CreationTime": "2020-11-18T01:44:08.444Z",
+    "Capabilities": [],
+    "StackName": "SampleStack",
+    "NotificationARNs": [],
+    "ChangeSetId": "arn:aws:cloudformation:us-east-1:123456789012:changeSet/SampleChangeSet-addremove/1a2345b6-0000-00a0-a123-00abc0abc000"
+}
