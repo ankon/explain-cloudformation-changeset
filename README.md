@@ -19,7 +19,7 @@ $ ./explain-cloudformation-changeset --change-set-name=${id} --graph-output=grap
 
 The tool will download (nested) changeset descriptions and save them by default in the current working directory as JSON files. This can be changed by using the `--cache-dir` argument. If a changeset specified on the command-line already is cached, the cached version will be used. 
 
-The examples can be used by setting the cache directory accordingly:
+The [examples](aws-examples/README.md) can be used by setting the cache directory accordingly:
 
 ```sh
 ./explain-cloudformation-changeset --cache-dir=aws-examples --change-set-name=--change-set-name=SampleChangeSet-direct
