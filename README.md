@@ -19,7 +19,7 @@ $ ./explain-cloudformation-changeset --change-set-name=${id} --graph-output=grap
 
 The tool will download (nested) changeset descriptions and save them by default in the current working directory as JSON files. This can be changed by using the `--cache-dir` argument. If a changeset specified on the command-line already is cached, the cached version will be used. 
 
-The [examples](aws-examples/README.md) can be used by setting the cache directory accordingly:
+The [examples](./aws-examples) can be used by setting the cache directory accordingly:
 
 ```sh
 ./explain-cloudformation-changeset --cache-dir=aws-examples --change-set-name=SampleChangeSet-direct --graph-output=SampleChangeSet-direct.svg
@@ -34,4 +34,4 @@ The [examples](aws-examples/README.md) can be used by setting the cache director
 
 See [LICENSE](./LICENSE) for the license of the code.
 
-The files in [aws-examples] have been taken from <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-changesets-samples.html> and are licensed under a [modified MIT license](https://github.com/awsdocs/aws-cloudformation-user-guide/blob/main/LICENSE-SAMPLECODE).
+The files in [aws-examples](./aws-examples) have been taken from <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-changesets-samples.html> and are licensed under a [modified MIT license](https://github.com/awsdocs/aws-cloudformation-user-guide/blob/main/LICENSE-SAMPLECODE).
