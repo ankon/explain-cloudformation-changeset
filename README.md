@@ -22,7 +22,7 @@ The tool will download (nested) changeset descriptions and save them by default 
 The [examples](aws-examples/README.md) can be used by setting the cache directory accordingly:
 
 ```sh
-./explain-cloudformation-changeset --cache-dir=aws-examples --change-set-name=--change-set-name=SampleChangeSet-direct
+./explain-cloudformation-changeset --cache-dir=aws-examples --change-set-name=SampleChangeSet-direct --graph-output=SampleChangeSet-direct.svg
 ```
 
 ## TODO & Ideas
