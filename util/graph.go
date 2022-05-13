@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
 	"github.com/goccy/go-graphviz/cgraph"
@@ -248,6 +249,82 @@ func (csg *changeSetGraph) findChangeCauses(stackName string, change *types.Reso
 	return result, nil
 }
 
+type resourceNode interface {
+	SetColors(border string, fill string)
+	SetLabel(string)
+}
+
+type graphResourceNode struct {
+	*cgraph.Graph
+}
+
+func (g *graphResourceNode) SetColors(border string, fill string) {
+	g.Graph.SafeSet("color", border, "")
+	g.Graph.SafeSet("fillcolor", fill, "")
+	if fill != "" {
+		g.Graph.SetStyle(cgraph.FilledGraphStyle)
+	}
+}
+func (g *graphResourceNode) SetLabel(s string) {
+	g.Graph.SetLabel(s)
+}
+
+type nodeResourceNode struct {
+	*cgraph.Node
+}
+
+func (n *nodeResourceNode) SetColors(border string, fill string) {
+	n.Node.SetColor(border)
+	n.Node.SetFillColor(fill)
+	if fill != "" {
+		n.Node.SetStyle(cgraph.FilledNodeStyle)
+	}
+}
+func (n *nodeResourceNode) SetLabel(s string) {
+	n.Node.SetLabel(s)
+}
+
+func makeResourceNode(node interface{}) (resourceNode, error) {
+	switch node := node.(type) {
+	case *cgraph.Graph:
+		return &graphResourceNode{node}, nil
+	case *cgraph.Node:
+		return &nodeResourceNode{node}, nil
+	}
+
+	return nil, fmt.Errorf("incompatible node type %T", node)
+}
+
+func configureResourceNode(node resourceNode, change types.ResourceChange, logicalResourceId string) {
+	var fillColor string
+	switch change.Replacement {
+	case types.ReplacementTrue:
+		fillColor = replacedResourceFillColor
+	case types.ReplacementConditional:
+		fillColor = maybeReplacedResourceFillColor
+	}
+
+	var changeTypePrefix string
+	switch change.Action {
+	case types.ChangeActionAdd:
+		changeTypePrefix = "+"
+		node.SetColors(addedResourceColor, fillColor)
+	case types.ChangeActionRemove:
+		changeTypePrefix = "-"
+		node.SetColors(removedResourceColor, removedResourceFillColor)
+	case types.ChangeActionModify:
+		changeTypePrefix = "~"
+		node.SetColors(modifiedResourceColor, fillColor)
+	case types.ChangeActionImport:
+		changeTypePrefix = "*"
+		node.SetColors(importedResourceColor, fillColor)
+	case types.ChangeActionDynamic:
+		changeTypePrefix = "?"
+		node.SetColors(dynamicResourceColor, fillColor)
+	}
+	node.SetLabel(fmt.Sprintf("%s %s\n%s", changeTypePrefix, logicalResourceId, aws.ToString(change.ResourceType)))
+}
+
 func (csg *changeSetGraph) populateGraph(svc cloudformationClient, resp *cloudformation.DescribeChangeSetOutput) error {
 	// Nodes: 1. Resources that changed (name: StackName.LogicalResourceId)
 	//        2. Provided parameter (name: StackName.ParameterKey)
@@ -268,27 +345,48 @@ func (csg *changeSetGraph) populateGraph(svc cloudformationClient, resp *cloudfo
 		resourceType := aws.ToString(change.ResourceChange.ResourceType)
 		isNestedStack := resourceType == "AWS::CloudFormation::Stack"
 
-		var changedNode *cgraph.Node
+		var node resourceNode
 		if isNestedStack {
-			log.Infof("processing nested stack %v.%v", stackName, logicalResourceId)
+			log.Infof("processing %q nested stack %v.%v", change.ResourceChange.Action, stackName, logicalResourceId)
 
-			// Query the change set of that stack, which will also reveal the actual stack name
-			nestedChangeSet, err := svc.DescribeChangeSet(context.TODO(), &cloudformation.DescribeChangeSetInput{
-				ChangeSetName: change.ResourceChange.ChangeSetId,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to get changeset, %v", err)
+			var nestedChangeSet *cloudformation.DescribeChangeSetOutput
+			var nestedStackName string
+			if change.ResourceChange.ChangeSetId != nil {
+				// Query the change set of that stack, which will also reveal the actual stack name
+				tmp, err := svc.DescribeChangeSet(context.TODO(), &cloudformation.DescribeChangeSetInput{
+					ChangeSetName: change.ResourceChange.ChangeSetId,
+				})
+				if err != nil {
+					return fmt.Errorf("failed to get changeset, %v", err)
+				}
+
+				// Prepare the graph for the stack
+				nestedChangeSet = tmp
+				nestedStackName = aws.ToString(nestedChangeSet.StackName)
+			} else {
+				// Parse the stack name out of the ARN
+				arn, err := arn.Parse(aws.ToString(change.ResourceChange.PhysicalResourceId))
+				if err != nil {
+					// Odd?
+					return fmt.Errorf("failed to parse physical resource id of nested stack as ARN, %v", err)
+				}
+				parts := strings.Split(arn.Resource, "/")
+				nestedStackName = parts[1]
 			}
 
-			// Prepare the graph for the stack
-			nestedStackName := aws.ToString(nestedChangeSet.StackName)
-			csg.makeStack(stackName, nestedStackName, logicalResourceId)
+			nestedGraph, err := csg.makeStack(stackName, nestedStackName, logicalResourceId)
+			if err != nil {
+				return fmt.Errorf("cannot make subgraph for nested stack change, %v", err)
+			}
 
 			// Populate the graph with everything going on inside that stack
-			csg.populateGraph(svc, nestedChangeSet)
+			// XXX: We could look at the template here if there is no changeset?
+			if nestedChangeSet != nil {
+				csg.populateGraph(svc, nestedChangeSet)
+			}
 
 			clusterName := fmt.Sprintf("cluster_%s", nestedStackName)
-			changedNode, err = csg.makeOrFindNode(nestedStackName, stackNodeName, configureResourceChangeNode(&clusterName))
+			changedNode, err := csg.makeOrFindNode(nestedStackName, stackNodeName, configureResourceChangeNode(&clusterName))
 			if err != nil {
 				return fmt.Errorf("cannot make node for nested stack change, %v", err)
 			}
@@ -307,51 +405,30 @@ func (csg *changeSetGraph) populateGraph(svc cloudformationClient, resp *cloudfo
 				existingNode.SetStyle("invis")
 			}
 			csg.nodes[nodeName] = changedNode
+
+			node, err = makeResourceNode(nestedGraph)
+			if err != nil {
+				return fmt.Errorf("cannot create resource node for subgraph, %v", err)
+			}
 		} else {
 			var err error
-			changedNode, err = csg.makeOrFindNode(stackName, logicalResourceId, configureResourceChangeNode(nil))
+			changedNode, err := csg.makeOrFindNode(stackName, logicalResourceId, configureResourceChangeNode(nil))
 			if err != nil {
 				return fmt.Errorf("cannot make node for change, %v", err)
+			}
+			node, err = makeResourceNode(changedNode)
+			if err != nil {
+				return fmt.Errorf("cannot create resource node for node, %v", err)
 			}
 		}
 
 		if change.Type != types.ChangeTypeResource {
 			// We cannot handle these, someone needs to actually update the code.
-			changedNode.SetLabel(fmt.Sprintf("%v", change.Type))
+			node.SetLabel(fmt.Sprintf("%v", change.Type))
 			continue
 		}
 
-		if !isNestedStack {
-			switch change.ResourceChange.Replacement {
-			case types.ReplacementTrue:
-				changedNode.SetStyle(cgraph.FilledNodeStyle)
-				changedNode.SetFillColor(replacedResourceFillColor)
-			case types.ReplacementConditional:
-				changedNode.SetStyle(cgraph.FilledNodeStyle)
-				changedNode.SetFillColor(maybeReplacedResourceFillColor)
-			}
-
-			var changeTypePrefix string
-			switch change.ResourceChange.Action {
-			case types.ChangeActionAdd:
-				changeTypePrefix = "+"
-				changedNode.SetColor(addedResourceColor)
-			case types.ChangeActionRemove:
-				changeTypePrefix = "-"
-				changedNode.SetColor(removedResourceColor)
-				changedNode.SetFillColor(removedResourceFillColor)
-			case types.ChangeActionModify:
-				changeTypePrefix = "~"
-				changedNode.SetColor(modifiedResourceColor)
-			case types.ChangeActionImport:
-				changeTypePrefix = "*"
-				changedNode.SetColor(importedResourceColor)
-			case types.ChangeActionDynamic:
-				changeTypePrefix = "?"
-				changedNode.SetColor(dynamicResourceColor)
-			}
-			changedNode.SetLabel(fmt.Sprintf("%s %s\n%s", changeTypePrefix, logicalResourceId, aws.ToString(change.ResourceChange.ResourceType)))
-		}
+		configureResourceNode(node, *change.ResourceChange, logicalResourceId)
 
 		if len(change.ResourceChange.Details) > 0 {
 			pass2Changes = append(pass2Changes, change)
