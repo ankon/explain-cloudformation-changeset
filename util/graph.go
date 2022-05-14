@@ -28,18 +28,18 @@ type cloudformationClient interface {
 type color = string
 
 const (
-	modifiedResourceColor color = "/paired10/1"
-	addedResourceColor    color = "/paired10/3"
-	removedResourceColor  color = "/paired10/5"
-	importedResourceColor color = "/paired10/7"
-	dynamicResourceColor  color = "/paired10/11"
+	modifiedResourceColor color = "/paired10/2"
+	addedResourceColor    color = "/paired10/4"
+	removedResourceColor  color = "/paired10/6"
+	importedResourceColor color = "/paired10/8"
+	dynamicResourceColor  color = "/paired10/12"
 
 	unusedParameterColor color = "/paired10/9"
 	usedParameterColor   color = "/paired10/10"
 
 	maybeReplacedResourceFillColor color = "/paired10/1"
 	replacedResourceFillColor      color = "/paired10/2"
-	removedResourceFillColor       color = "/paired10/6"
+	removedResourceFillColor       color = "/paired10/5"
 
 	parametersNodeName = "Parameters"
 	stackNodeName      = "_"
