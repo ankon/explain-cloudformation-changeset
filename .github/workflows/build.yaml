@@ -15,9 +15,9 @@ jobs:
     - id: set-matrix
       run: |
         if [ "${{ startsWith(github.ref, 'refs/tags/v') }}" = "true" ]; then
-          echo ::set-output name=matrix::{\"include\":[{ \"os\": [\"ubuntu-latest\", \"macos-latest\"]}]}
+          echo ::set-output name=matrix::{\"include\":[{ \"os\": \"ubuntu-latest\" }, { \"os\": \"macos-latest\" }]}
         else
-          echo ::set-output name=matrix::{\"include\":[{ \"os\": [\"ubuntu-latest\"]}]}
+          echo ::set-output name=matrix::{\"include\":[{ \"os\": \"ubuntu-latest\" }]}
         fi
 
   build:
