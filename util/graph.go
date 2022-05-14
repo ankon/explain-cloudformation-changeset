@@ -125,6 +125,7 @@ func (csg *changeSetGraph) makeOrFindNode(stackName, name string, configureNode 
 		if err != nil {
 			return nil, fmt.Errorf("cannot create node in graph, %v", err)
 		}
+		newNode.SetID(nodeId)
 
 		configureNode(newNode)
 
