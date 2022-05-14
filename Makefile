@@ -11,6 +11,9 @@ build: ${BINARY_NAME}
 ${BINARY_NAME}: ${SOURCES}
 	go build -o ${BINARY_NAME} main.go
 
+lint:
+	go vet .
+
 test:
 	go test -v main.go
  
