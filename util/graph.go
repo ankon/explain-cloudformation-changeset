@@ -450,16 +450,25 @@ func (csg *changeSetGraph) populateGraph(svc cloudformationClient, resp *cloudfo
 		}
 
 		for _, changeCause := range changeCauseNodes {
-			edgeName := string(changeCause.detail.ChangeSource)
-			log.Infof("creating edge %q from %q to %q", edgeName, changeCause.node.Get("id"), changedNode.Get("id"))
+			sourceNodeId := changeCause.node.Name()
+			var sourcePort string
+			if changeCause.port != nil {
+				sourcePort = *changeCause.port
+			}
+			targetNodeId := changedNode.Name()
+			targetName := aws.ToString(changeCause.detail.Target.Name)
+
+			// Calculate a unique-enough name for this edge
+			edgeName := fmt.Sprintf(":%s_%s_%s", sourcePort, string(changeCause.detail.ChangeSource), targetName)
+			log.Infof("creating edge %q from %q to %q", edgeName, sourceNodeId, targetNodeId)
 
 			e, err := csg.graphs[stackName].CreateEdge(edgeName, changeCause.node, changedNode)
 			if err != nil {
 				return fmt.Errorf("cannot make edge, %v", err)
 			}
 
-			if changeCause.port != nil {
-				e.SetTailPort(*changeCause.port)
+			if sourcePort != "" {
+				e.SetTailPort(sourcePort)
 			}
 
 			switch changeCause.detail.Evaluation {
@@ -471,7 +480,6 @@ func (csg *changeSetGraph) populateGraph(svc cloudformationClient, resp *cloudfo
 				e.SetTooltip("Dynamic evaluation")
 			}
 
-			targetName := aws.ToString(changeCause.detail.Target.Name)
 			// XXX: "Parameters" is pretty much the default for nested stacks, and just adds noise. But, is this check
 			//      enough, or could this now catch and hide user-defined things called
 			if changeCause.detail.Target.Attribute == types.ResourceAttributeProperties && targetName != "Parameters" {
