@@ -8,11 +8,6 @@ all: build test aws-examples
  
 build: ${BINARY_NAME}
 
-release: ${BINARY_NAME}.darwin-amd64
-
-${BINARY_NAME}.%: clean
-	GOOS=$(shell echo "$*" | cut -f 1 -d -) GOARCH=$(shell echo "$*" | cut -f 2 -d -) make build && mv ${BINARY_NAME} "$@"
-
 ${BINARY_NAME}: ${SOURCES} deps
 	go build -o "$@" main.go
 
