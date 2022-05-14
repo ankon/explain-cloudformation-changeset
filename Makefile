@@ -4,12 +4,19 @@ SOURCES:=$(shell find . -type f -name '*.go')
 AWS_EXAMPLES_SOURCES:=$(wildcard aws-examples/SampleChangeSet*.json)
 AWS_EXAMPLES_OUTPUTS:=$(patsubst %.json, %.png, $(AWS_EXAMPLES_SOURCES))
 
+CURRENT_GOOS:=$(shell go env GOOS)
+CURRENT_GOARCH:=$(shell go env GOARCH)
+
 all: build test aws-examples
  
 build: ${BINARY_NAME}
 
-${BINARY_NAME}: ${SOURCES}
-	go build -o ${BINARY_NAME} main.go
+release: ${BINARY_NAME}.darwin-amd64
+${BINARY_NAME}.darwin-amd64: ${SOURCES}
+	GOOS=darwin GOARCH=amd64 go build -o "$@" main.go
+
+${BINARY_NAME}: ${BINARY_NAME}.${CURRENT_GOOS}-${CURRENT_GOARCH}
+	ln "$<" "$@"
 
 lint:
 	go vet .
@@ -30,4 +37,4 @@ deps:
 
 clean:
 	go clean
-	rm ${BINARY_NAME}
+	rm -f ${BINARY_NAME} ${BINARY_NAME}.*

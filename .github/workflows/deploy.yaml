@@ -1,0 +1,19 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Build release artifacts
+        run: make release
+      - name: Add artifacts to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            explain-cloudformation-changeset.darwin-amd64
