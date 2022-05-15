@@ -9,7 +9,7 @@ all: build test aws-examples
 build: ${BINARY_NAME}
 
 ${BINARY_NAME}: ${SOURCES} deps
-	go build -o "$@" -ldflags "-X github.com/ankon/explain-cloudformation-changeset/cmd.version=$(shell git describe --tags)" main.go
+	go build -o "$@" -ldflags "-X github.com/ankon/explain-cloudformation-changeset/cmd.version=$(shell git describe --tags --always --first-parent)" main.go
 
 lint:
 	go vet .
