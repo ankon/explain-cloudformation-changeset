@@ -28,7 +28,7 @@ type ClientWithCache struct {
 // `CacheDir` (if unset: the current directory)
 func NewClientWithCache(svc *cloudformation.Client, opts *ClientWithCacheOpts) (*ClientWithCache, error) {
 	var cacheDir string
-	if opts == nil || opts.CacheDir == nil {
+	if opts == nil || opts.CacheDir == nil || *opts.CacheDir == "" {
 		cwd, err := os.Getwd()
 		if err != nil {
 			return nil, fmt.Errorf("cannot determine current working directory, %v", err)
