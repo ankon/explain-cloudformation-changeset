@@ -27,6 +27,8 @@ var graphCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		graph()
 	},
+	// See https://github.com/spf13/cobra/issues/943#issuecomment-528655208
+	Version: version,
 }
 
 var graphFile string

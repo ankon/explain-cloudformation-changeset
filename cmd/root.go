@@ -8,11 +8,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// version, injected from the outside
+var version string
+
 var rootCmd = &cobra.Command{
 	Use:     "explain-cloudformation-changeset",
 	Short:   "Explain a CloudFormation changeset",
 	Long:    `explain-cloudformation-changeset provides tools to make reviewing a CloudFormation changeset easier`,
 	Aliases: []string{graphCmd.Name()},
+	Version: version,
 }
 
 var cacheDir string
@@ -77,6 +81,8 @@ func init() {
 		log.Fatalf("cannot determine current working directory (%q)", err.Error())
 	}
 
+	rootCmd.SetVersionTemplate(`{{printf "version %s" .Version}}
+`)
 	rootCmd.PersistentFlags().StringVar(&cacheDir, "cache-dir", cwd, "Directory for caching changeset descriptions")
 	rootCmd.PersistentFlags().StringVar(&region, "region", getEnvOrDefault("us-east-1", "AWS_REGION", "AWS_DEFAULT_REGION"), "AWS region")
 	rootCmd.PersistentFlags().StringVar(&stackName, "stack-name", "", "Root stack name (required when change set is not given as ARN)")
