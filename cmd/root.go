@@ -49,7 +49,11 @@ func nonRootSubCmds() (l []string) {
 func Execute() {
 	// Work out a default command if none is given
 	// See https://github.com/spf13/cobra/issues/725#issuecomment-411807394
-	checkRootAlias(os.Args[1], nonRootSubCmds())
+	var firstArg string
+	if len(os.Args) > 1 {
+		firstArg = os.Args[1]
+	}
+	checkRootAlias(firstArg, nonRootSubCmds())
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
