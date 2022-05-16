@@ -4,9 +4,6 @@ on:
 - push
 - pull_request
 
-permissions:
-  contents: write
-
 jobs:
   matrix_prep:
     runs-on: ubuntu-latest
@@ -25,6 +22,8 @@ jobs:
 
   build:
     needs: [matrix_prep]
+    permissions:
+      contents: write
     strategy:
       fail-fast: true
       matrix: ${{ fromJson(needs.matrix_prep.outputs.matrix) }}
