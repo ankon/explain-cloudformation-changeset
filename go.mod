@@ -9,7 +9,7 @@ require (
 	github.com/aws/smithy-go v1.11.3
 	github.com/goccy/go-graphviz v0.0.10-0.20220527024716-04a0120c8afb
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 )
 
 require (
