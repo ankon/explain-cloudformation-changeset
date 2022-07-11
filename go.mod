@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/aws/aws-sdk-go-v2 v1.16.7
 	github.com/aws/aws-sdk-go-v2/config v1.15.13
-	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.21.1
+	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.22.0
 	github.com/aws/smithy-go v1.12.0
 	github.com/goccy/go-graphviz v0.0.10-0.20220527024716-04a0120c8afb
 	github.com/sirupsen/logrus v1.8.1
