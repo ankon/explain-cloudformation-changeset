@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.16.16
 	github.com/aws/aws-sdk-go-v2/config v1.17.8
 	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.22.10
-	github.com/aws/smithy-go v1.13.3
+	github.com/aws/smithy-go v1.13.4
 	github.com/goccy/go-graphviz v0.0.10-0.20220527024716-04a0120c8afb
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
