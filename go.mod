@@ -3,10 +3,10 @@ module github.com/ankon/explain-cloudformation-changeset
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.18.0
+	github.com/aws/aws-sdk-go-v2 v1.20.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.25
 	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.27.4
-	github.com/aws/smithy-go v1.13.5
+	github.com/aws/smithy-go v1.14.0
 	github.com/goccy/go-graphviz v0.1.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.7.0
